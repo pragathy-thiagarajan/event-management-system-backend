@@ -41,14 +41,11 @@ const register = async (req, res) => {
         role: user.role,
       },
     });
-
   } catch (error) {
-
     res.status(500).json({
       success: false,
       message: error.message,
     });
-
   }
 };
 
@@ -64,6 +61,13 @@ const login = async (req, res) => {
     }
 
     const user = await User.findOne({ email }).select("+password");
+
+    if (user.status === "blocked") {
+      return res.status(403).json({
+        success: false,
+        message: "Your account has been blocked",
+      });
+    }
 
     if (!user) {
       return res.status(401).json({
@@ -92,7 +96,6 @@ const login = async (req, res) => {
         role: user.role,
       },
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,

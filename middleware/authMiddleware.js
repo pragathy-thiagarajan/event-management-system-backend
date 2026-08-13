@@ -15,6 +15,13 @@ const protect = async (req, res, next) => {
 
       req.user = await User.findById(decoded.id).select("-password");
 
+      if (user.status === "blocked") {
+        return res.status(403).json({
+          success: false,
+          message: "Your account has been blocked",
+        });
+      }
+
       if (!req.user) {
         return res.status(401).json({
           success: false,

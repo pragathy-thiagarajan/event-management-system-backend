@@ -40,7 +40,23 @@ const processPayment = async (req, res) => {
         message: "Booking is already paid",
       });
     }
+    if (!paymentSuccess) {
+      const event = await Event.findById(booking.event);
 
+      if (event) {
+        const ticket = event.ticketTypes.find(
+          (ticket) => ticket.name === booking.ticketType,
+        );
+
+        if (ticket) {
+          ticket.availableQuantity += booking.quantity;
+          await event.save();
+        }
+      }
+
+      booking.paymentStatus = "failed";
+      booking.bookingStatus = "cancelled";
+    }
     if (paymentSuccess) {
       booking.paymentStatus = "paid";
       booking.bookingStatus = "confirmed";
@@ -54,9 +70,7 @@ const processPayment = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: paymentSuccess
-        ? "Payment successful"
-        : "Payment failed",
+      message: paymentSuccess ? "Payment successful" : "Payment failed",
       booking,
     });
   } catch (error) {
