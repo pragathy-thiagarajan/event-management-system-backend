@@ -23,6 +23,12 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
 
+    status: {
+      type: String,
+      enum: ["active", "blocked"],
+      default: "active",
+    },
+
     phone: {
       type: String,
       default: "",
@@ -41,7 +47,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 module.exports = mongoose.model("User", userSchema);
