@@ -29,6 +29,47 @@ const ticketTypeSchema = new mongoose.Schema(
   { _id: true }
 );
 
+// Schedule / session schema
+const scheduleItemSchema = new mongoose.Schema(
+  {
+    date: {
+      type: Date,
+      required: true,
+    },
+
+    startTime: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    endTime: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    sessionTitle: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    description: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    speaker: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+  },
+  { _id: true }
+);
+
 const eventSchema = new mongoose.Schema(
   {
     title: {
@@ -83,6 +124,12 @@ const eventSchema = new mongoose.Schema(
       },
     },
 
+    // Event schedule
+    schedule: {
+      type: [scheduleItemSchema],
+      default: [],
+    },
+
     organizer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -91,7 +138,12 @@ const eventSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["draft", "pending", "approved", "rejected"],
+      enum: [
+        "draft",
+        "pending",
+        "approved",
+        "rejected",
+      ],
       default: "pending",
     },
   },
@@ -100,4 +152,5 @@ const eventSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Event", eventSchema);
+module.exports =
+  mongoose.model("Event", eventSchema);

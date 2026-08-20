@@ -37,18 +37,70 @@ const createEvent = async (req, res) => {
       availableQuantity: ticket.quantity,
     }));
 
-    const event = await Event.create({
-      title,
-      description,
-      category,
-      eventDate,
-      startTime,
-      endTime,
-      location,
-      bannerImage,
-      ticketTypes: formattedTicketTypes,
-      organizer: req.user._id,
-    });
+    const createEvent = async (req, res) => {
+      try {
+        const {
+          title,
+          description,
+          category,
+          eventDate,
+          startTime,
+          endTime,
+          location,
+          bannerImage,
+          ticketTypes,
+          schedule,
+        } = req.body;
+
+        if (
+          !title ||
+          !description ||
+          !category ||
+          !eventDate ||
+          !startTime ||
+          !endTime ||
+          !location ||
+          !ticketTypes
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: "All required fields must be provided",
+          });
+        }
+
+        const formattedTicketTypes = ticketTypes.map((ticket) => ({
+          name: ticket.name,
+          price: ticket.price,
+          quantity: ticket.quantity,
+          availableQuantity: ticket.quantity,
+        }));
+
+        const event = await Event.create({
+          title,
+          description,
+          category,
+          eventDate,
+          startTime,
+          endTime,
+          location,
+          bannerImage,
+          ticketTypes: formattedTicketTypes,
+          schedule: schedule || [],
+          organizer: req.user._id,
+        });
+
+        res.status(201).json({
+          success: true,
+          message: "Event created successfully",
+          event,
+        });
+      } catch (error) {
+        res.status(500).json({
+          success: false,
+          message: error.message,
+        });
+      }
+    };
 
     res.status(201).json({
       success: true,
@@ -65,14 +117,7 @@ const createEvent = async (req, res) => {
 
 const getEvents = async (req, res) => {
   try {
-    const {
-      search,
-      category,
-      location,
-      date,
-      minPrice,
-      maxPrice,
-    } = req.query;
+    const { search, category, location, date, minPrice, maxPrice } = req.query;
 
     const filter = {
       status: "approved",
@@ -165,8 +210,10 @@ const getEvents = async (req, res) => {
 
 const getEvent = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id)
-      .populate("organizer", "name email");
+    const event = await Event.findById(req.params.id).populate(
+      "organizer",
+      "name email",
+    );
 
     if (!event) {
       return res.status(404).json({
@@ -238,6 +285,7 @@ const updateEvent = async (req, res) => {
       location,
       bannerImage,
       ticketTypes,
+      schedule,
     } = req.body;
 
     if (ticketTypes) {
@@ -249,6 +297,10 @@ const updateEvent = async (req, res) => {
       }));
 
       event.ticketTypes = formattedTicketTypes;
+    }
+
+    if (schedule) {
+      event.schedule = schedule;
     }
 
     event.title = title ?? event.title;
