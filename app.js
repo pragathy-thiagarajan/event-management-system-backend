@@ -9,7 +9,10 @@ const adminRoutes = require("./routes/adminRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const ticketRoutes = require("./routes/ticketRoutes");
-
+const notificationRoutes =
+  require("./routes/notificationRoutes");
+const analyticsRoutes =
+  require("./routes/analyticsRoutes");
 const app = express();
 require("dotenv").config();
 connectDB();
@@ -29,5 +32,13 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/tickets", ticketRoutes);
+app.use(
+  "/api/notifications",
+  notificationRoutes
+);
 
+app.use(
+  "/api/analytics",
+  analyticsRoutes
+);
 module.exports = app;

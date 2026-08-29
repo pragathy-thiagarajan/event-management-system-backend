@@ -12,6 +12,7 @@ const createEvent = async (req, res) => {
       location,
       bannerImage,
       ticketTypes,
+      schedule,
     } = req.body;
 
     if (
@@ -37,70 +38,19 @@ const createEvent = async (req, res) => {
       availableQuantity: ticket.quantity,
     }));
 
-    const createEvent = async (req, res) => {
-      try {
-        const {
-          title,
-          description,
-          category,
-          eventDate,
-          startTime,
-          endTime,
-          location,
-          bannerImage,
-          ticketTypes,
-          schedule,
-        } = req.body;
-
-        if (
-          !title ||
-          !description ||
-          !category ||
-          !eventDate ||
-          !startTime ||
-          !endTime ||
-          !location ||
-          !ticketTypes
-        ) {
-          return res.status(400).json({
-            success: false,
-            message: "All required fields must be provided",
-          });
-        }
-
-        const formattedTicketTypes = ticketTypes.map((ticket) => ({
-          name: ticket.name,
-          price: ticket.price,
-          quantity: ticket.quantity,
-          availableQuantity: ticket.quantity,
-        }));
-
-        const event = await Event.create({
-          title,
-          description,
-          category,
-          eventDate,
-          startTime,
-          endTime,
-          location,
-          bannerImage,
-          ticketTypes: formattedTicketTypes,
-          schedule: schedule || [],
-          organizer: req.user._id,
-        });
-
-        res.status(201).json({
-          success: true,
-          message: "Event created successfully",
-          event,
-        });
-      } catch (error) {
-        res.status(500).json({
-          success: false,
-          message: error.message,
-        });
-      }
-    };
+    const event = await Event.create({
+      title,
+      description,
+      category,
+      eventDate,
+      startTime,
+      endTime,
+      location,
+      bannerImage,
+      ticketTypes: formattedTicketTypes,
+      schedule: schedule || [],
+      organizer: req.user._id,
+    });
 
     res.status(201).json({
       success: true,

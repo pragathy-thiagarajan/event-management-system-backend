@@ -1,7 +1,7 @@
 const crypto = require("crypto");
-
 const Booking = require("../models/Booking");
 const Event = require("../models/Event");
+const User = require("../models/User");
 
 const createBooking = async (req, res) => {
   try {
@@ -202,6 +202,107 @@ const cancelBooking = async (req, res) => {
   }
 };
 
+const transferBooking = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Recipient email is required",
+      });
+    }
+
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found",
+      });
+    }
+
+    // Only current owner can transfer
+    if (
+      booking.user.toString() !==
+      req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "You can only transfer your own booking",
+      });
+    }
+
+    // Only valid paid ticket can be transferred
+    if (
+      booking.bookingStatus !== "confirmed" ||
+      booking.paymentStatus !== "paid"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Only confirmed and paid bookings can be transferred",
+      });
+    }
+
+    const recipient = await User.findOne({
+      email: email.toLowerCase().trim(),
+    });
+
+    if (!recipient) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Recipient must have a registered account",
+      });
+    }
+
+    if (
+      recipient._id.toString() ===
+      req.user._id.toString()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "You cannot transfer a ticket to yourself",
+      });
+    }
+
+    if (recipient.status === "blocked") {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Ticket cannot be transferred to this user",
+      });
+    }
+
+    booking.user = recipient._id;
+
+    await booking.save();
+
+    const transferredBooking =
+      await Booking.findById(booking._id)
+        .populate("user", "name email")
+        .populate(
+          "event",
+          "title eventDate location"
+        );
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Ticket transferred successfully",
+      booking: transferredBooking,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 const getEventAttendees = async (req, res) => {
   try {
     const event = await Event.findById(req.params.eventId);
@@ -245,10 +346,77 @@ const getEventAttendees = async (req, res) => {
     });
   }
 };
+
+const checkInAttendee = async (req, res) => {
+  try {
+    const booking = await Booking.findById(
+      req.params.id
+    ).populate("event");
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found",
+      });
+    }
+
+    const event = booking.event;
+
+    // Only event organizer or admin
+    if (
+      req.user.role !== "admin" &&
+      event.organizer.toString() !==
+        req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "You are not allowed to check in this attendee",
+      });
+    }
+
+    if (
+      booking.bookingStatus !== "confirmed" ||
+      booking.paymentStatus !== "paid"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Only confirmed and paid bookings can be checked in",
+      });
+    }
+
+    if (booking.checkedIn) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Attendee is already checked in",
+      });
+    }
+
+    booking.checkedIn = true;
+
+    await booking.save();
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Attendee checked in successfully",
+      booking,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 module.exports = {
   createBooking,
   getMyBookings,
   getBooking,
   cancelBooking,
   getEventAttendees,
+  transferBooking,
+  checkInAttendee,
 };

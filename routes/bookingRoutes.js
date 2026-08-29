@@ -8,6 +8,8 @@ const {
   getBooking,
   cancelBooking,
   getEventAttendees,
+  checkInAttendee,
+  transferBooking,
 } = require("../controllers/bookingController");
 
 const { protect } = require("../middleware/authMiddleware");
@@ -21,6 +23,19 @@ router.get(
   protect,
   authorize("organizer", "admin"),
   getEventAttendees
+);
+
+router.patch(
+  "/:id/transfer",
+  protect,
+  transferBooking
+);
+
+router.patch(
+  "/:id/check-in",
+  protect,
+  authorize("organizer", "admin"),
+  checkInAttendee
 );
 
 router.get("/:id", protect, getBooking);

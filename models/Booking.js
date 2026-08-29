@@ -43,6 +43,21 @@ const bookingSchema = new mongoose.Schema(
       default: "pending",
     },
 
+    razorpayOrderId: {
+      type: String,
+      default: "",
+    },
+
+    razorpayPaymentId: {
+      type: String,
+      default: "",
+    },
+
+    razorpaySignature: {
+      type: String,
+      default: "",
+    },
+
     ticketCode: {
       type: String,
       required: true,
@@ -51,6 +66,10 @@ const bookingSchema = new mongoose.Schema(
     paymentId: {
       type: String,
       default: "",
+    },
+    checkedIn: {
+      type: Boolean,
+      default: false,
     },
   },
   {

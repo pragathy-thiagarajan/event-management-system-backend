@@ -40,13 +40,11 @@ const scheduleItemSchema = new mongoose.Schema(
     startTime: {
       type: String,
       required: true,
-      trim: true,
     },
 
     endTime: {
       type: String,
       required: true,
-      trim: true,
     },
 
     sessionTitle: {
@@ -58,7 +56,6 @@ const scheduleItemSchema = new mongoose.Schema(
     description: {
       type: String,
       default: "",
-      trim: true,
     },
 
     speaker: {
@@ -152,5 +149,4 @@ const eventSchema = new mongoose.Schema(
   }
 );
 
-module.exports =
-  mongoose.model("Event", eventSchema);
+module.exports = mongoose.model("Event", eventSchema);
