@@ -13,6 +13,7 @@ const createEvent = async (req, res) => {
       bannerImage,
       ticketTypes,
       schedule,
+      videoUrl,
     } = req.body;
 
     if (
@@ -50,6 +51,7 @@ const createEvent = async (req, res) => {
       ticketTypes: formattedTicketTypes,
       schedule: schedule || [],
       organizer: req.user._id,
+      videoUrl,
     });
 
     res.status(201).json({
@@ -236,6 +238,7 @@ const updateEvent = async (req, res) => {
       bannerImage,
       ticketTypes,
       schedule,
+      videoUrl,
     } = req.body;
 
     if (ticketTypes) {
@@ -261,6 +264,7 @@ const updateEvent = async (req, res) => {
     event.endTime = endTime ?? event.endTime;
     event.location = location ?? event.location;
     event.bannerImage = bannerImage ?? event.bannerImage;
+    event.videoUrl = videoUrl ?? event.videoUrl;
 
     const updatedEvent = await event.save();
 

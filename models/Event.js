@@ -26,7 +26,7 @@ const ticketTypeSchema = new mongoose.Schema(
       min: 0,
     },
   },
-  { _id: true }
+  { _id: true },
 );
 
 // Schedule / session schema
@@ -64,7 +64,7 @@ const scheduleItemSchema = new mongoose.Schema(
       trim: true,
     },
   },
-  { _id: true }
+  { _id: true },
 );
 
 const eventSchema = new mongoose.Schema(
@@ -111,6 +111,11 @@ const eventSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    videoUrl: {
+      type: String,
+      default: "",
+      trim: true,
+    },
 
     ticketTypes: {
       type: [ticketTypeSchema],
@@ -135,18 +140,13 @@ const eventSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: [
-        "draft",
-        "pending",
-        "approved",
-        "rejected",
-      ],
+      enum: ["draft", "pending", "approved", "rejected"],
       default: "pending",
     },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 module.exports = mongoose.model("Event", eventSchema);
