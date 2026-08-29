@@ -9,14 +9,15 @@ const adminRoutes = require("./routes/adminRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const ticketRoutes = require("./routes/ticketRoutes");
-const notificationRoutes =
-  require("./routes/notificationRoutes");
-const analyticsRoutes =
-  require("./routes/analyticsRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
+const supportRoutes = require("./routes/supportRoutes");
+const feedbackRoutes = require("./routes/feedbackRoutes");
+
 const app = express();
 require("dotenv").config();
 connectDB();
-console.log("Env variables...",process.env.JWT_SECRET);
+console.log("Env variables...", process.env.JWT_SECRET);
 app.use(cors());
 app.use(express.json());
 
@@ -32,13 +33,8 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/tickets", ticketRoutes);
-app.use(
-  "/api/notifications",
-  notificationRoutes
-);
-
-app.use(
-  "/api/analytics",
-  analyticsRoutes
-);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/analytics", analyticsRoutes);
+app.use("/api/support", supportRoutes);
+app.use("/api/feedback", feedbackRoutes);
 module.exports = app;
