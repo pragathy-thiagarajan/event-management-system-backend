@@ -211,13 +211,9 @@ const verifyRazorpayPayment = async (req, res) => {
 
     booking.paymentStatus = "paid";
     booking.bookingStatus = "confirmed";
-
     booking.paymentId = razorpay_payment_id;
-
     booking.razorpayPaymentId = razorpay_payment_id;
-
     booking.razorpaySignature = razorpay_signature;
-
     await booking.save();
 
     /*
