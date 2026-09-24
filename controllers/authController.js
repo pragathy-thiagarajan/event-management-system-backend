@@ -4,7 +4,7 @@ const generateToken = require("../utils/generateToken");
 
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -12,6 +12,11 @@ const register = async (req, res) => {
         message: "All fields are required",
       });
     }
+
+    // Public registration can only create attendees or organizers.
+    // Admin accounts cannot be created through public signup.
+    const allowedRoles = ["user", "organizer"];
+    const selectedRole = allowedRoles.includes(role) ? role : "user";
 
     const existingUser = await User.findOne({ email });
 
@@ -28,11 +33,15 @@ const register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      role: selectedRole,
     });
 
     res.status(201).json({
       success: true,
-      message: "User registered successfully",
+      message:
+        selectedRole === "organizer"
+          ? "Organizer registered successfully"
+          : "User registered successfully",
       token: generateToken(user._id),
       user: {
         id: user._id,
